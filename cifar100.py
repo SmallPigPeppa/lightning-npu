@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision.models import resnet50
 from torch import nn
 import torch.nn.functional as F
-from torchmetrics.functional import accuracy
+from torchmetrics.classification.accuracy import Accuracy
 DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
 
 class CIFAR100DataModule(pl.LightningDataModule):
@@ -48,6 +48,7 @@ class ResNet50Classifier(pl.LightningModule):
         super().__init__()
         self.model = resnet50(pretrained=True)
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
+        self.acc = Accuracy(num_classes=self.num_classes, task="multiclass", top_k=1)
 
     def forward(self, x):
         return self.model(x)
@@ -63,7 +64,7 @@ class ResNet50Classifier(pl.LightningModule):
         x, y = batch
         logits = self(x)
         loss = F.cross_entropy(logits, y)
-        acc = accuracy(logits, y)
+        acc = self.acc(logits, y)
         self.log('val_loss', loss)
         self.log('val_acc', acc)
 
