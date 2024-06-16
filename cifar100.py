@@ -48,7 +48,7 @@ class ResNet50Classifier(pl.LightningModule):
         super().__init__()
         self.model = resnet50(pretrained=True)
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
-        self.acc = Accuracy(num_classes=self.num_classes, task="multiclass", top_k=1)
+        self.acc = Accuracy(num_classes=num_classes, task="multiclass", top_k=1)
 
     def forward(self, x):
         return self.model(x)
