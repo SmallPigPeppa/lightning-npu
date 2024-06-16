@@ -1,3 +1,7 @@
+import sys
+# 添加PyTorch Lightning所在的目录到sys.path
+sys.path.append('/home/ma-user/work/wenzhuoliu/code/pytorch-lightning')
+
 import torch
 import torchvision
 import torchvision.transforms as transforms
