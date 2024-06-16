@@ -1,7 +1,7 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
-import lightning as L
+import lightning as pl
 from lightning import Trainer
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50
