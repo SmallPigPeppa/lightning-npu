@@ -73,6 +73,14 @@ class ResNet50Classifier(pl.LightningModule):
         self.log('val_loss', loss)
         self.log('val_acc', acc)
 
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = F.cross_entropy(logits, y)
+        acc = self.acc(logits, y)
+        self.log('test_loss', loss)
+        self.log('test_acc', acc)
+
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-3)
         return optimizer
