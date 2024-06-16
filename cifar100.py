@@ -1,12 +1,8 @@
-import sys
-# 添加PyTorch Lightning所在的目录到sys.path
-sys.path.append('/home/ma-user/work/wenzhuoliu/code')
-
 import torch
 import torchvision
 import torchvision.transforms as transforms
-import pytorch_lightning as pl
-from pytorch_lightning import Trainer
+import lightning as L
+from lightning import Trainer
 from torch.utils.data import DataLoader
 from torchvision.models import resnet50
 from torch import nn
