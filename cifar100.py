@@ -1,6 +1,6 @@
 import sys
 # 添加PyTorch Lightning所在的目录到sys.path
-sys.path.append('/home/ma-user/work/wenzhuoliu/code/pytorch-lightning')
+sys.path.append('/home/ma-user/work/wenzhuoliu/code')
 
 import torch
 import torchvision
