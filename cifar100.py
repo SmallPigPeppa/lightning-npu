@@ -8,7 +8,9 @@ from torchvision.models import resnet50
 from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
+
 DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
+
 
 class CIFAR100DataModule(pl.LightningDataModule):
     def __init__(self, batch_size=32):
@@ -30,8 +32,10 @@ class CIFAR100DataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         # 下载并应用适当的转换
-        self.cifar100_train = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=True, download=True, transform=self.train_transform)
-        self.cifar100_test = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=False, download=True, transform=self.test_transform)
+        self.cifar100_train = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=True, download=True,
+                                                            transform=self.train_transform)
+        self.cifar100_test = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=False, download=True,
+                                                           transform=self.test_transform)
 
     def train_dataloader(self):
         return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True)
@@ -42,6 +46,7 @@ class CIFAR100DataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+
 
 class ResNet50Classifier(pl.LightningModule):
     def __init__(self, num_classes=100):
@@ -72,12 +77,14 @@ class ResNet50Classifier(pl.LightningModule):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-3)
         return optimizer
 
+
 def main():
     data_module = CIFAR100DataModule(batch_size=64)
     model = ResNet50Classifier()
-    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=40, strategy='deepspeed')
+    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=40, strategy='deepspeed', precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
+
 
 if __name__ == '__main__':
     main()
