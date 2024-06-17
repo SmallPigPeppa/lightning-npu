@@ -52,6 +52,8 @@ class ResNet50Classifier(pl.LightningModule):
     def __init__(self, num_classes=100):
         super().__init__()
         self.model = resnet50(pretrained=True)
+        self.model.conv1 = nn.Conv2d(3, self.model.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.model.maxpool = nn.Identity()
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
         self.acc = Accuracy(num_classes=num_classes, task="multiclass", top_k=1)
 
