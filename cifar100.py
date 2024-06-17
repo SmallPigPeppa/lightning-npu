@@ -108,6 +108,7 @@ class ResNet50Classifier(pl.LightningModule):
 def main():
     data_module = CIFAR100DataModule(batch_size=batch_size)
     model = ResNet50Classifier()
+    # semi-precision
     trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=max_epochs, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
