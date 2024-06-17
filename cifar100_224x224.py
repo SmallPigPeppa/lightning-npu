@@ -9,23 +9,25 @@ from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
-DATASET_PATH = '/ppio_net0/torch_ds/'
+DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
 
 
 class CIFAR100DataModule(pl.LightningDataModule):
     def __init__(self, batch_size=32):
         super().__init__()
         self.batch_size = batch_size
-        # 训练时使用的数据增强
+        # Training data transformations
         self.train_transform = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
+            transforms.Resize(256),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
-            transforms.ColorJitter(brightness=63 / 255),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
         ])
-        # 测试时使用的数据增强（一般较少）
+        # Test data transformations (less augmentation)
         self.test_transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
         ])
@@ -52,7 +54,7 @@ class ResNet50Classifier(pl.LightningModule):
     def __init__(self, num_classes=100):
         super().__init__()
         self.model = resnet50(pretrained=True)
-        self.model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        # self.model.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
         # self.model.maxpool = nn.Identity()
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
         self.acc = Accuracy(num_classes=num_classes, task="multiclass", top_k=1)
@@ -89,11 +91,13 @@ class ResNet50Classifier(pl.LightningModule):
 
 
 def main():
-    data_module = CIFAR100DataModule(batch_size=64)
+    data_module = CIFAR100DataModule(batch_size=128)
     model = ResNet50Classifier()
     # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed', precision=16)
-    # trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='deepspeed')
-    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='auto')
+    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed')
+    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
+    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
+    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed',)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 

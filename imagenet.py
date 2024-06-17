@@ -9,51 +9,47 @@ from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
-DATASET_PATH = '/ppio_net0/torch_ds/'
+DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
 
-
-class CIFAR100DataModule(pl.LightningDataModule):
+class ImageNetDataModule(pl.LightningDataModule):
     def __init__(self, batch_size=32):
         super().__init__()
         self.batch_size = batch_size
-        # 训练时使用的数据增强
+        # Training data transformations
         self.train_transform = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
-            transforms.ColorJitter(brightness=63 / 255),
             transforms.ToTensor(),
-            transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
-        # 测试时使用的数据增强（一般较少）
+        # Test data transformations (less augmentation)
         self.test_transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
-            transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
     def setup(self, stage=None):
-        # 下载并应用适当的转换
-        self.cifar100_train = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=True, download=True,
-                                                            transform=self.train_transform)
-        self.cifar100_test = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=False, download=True,
-                                                           transform=self.test_transform)
+        # Load the dataset with appropriate transformations
+        self.imagenet_train = torchvision.datasets.ImageFolder(root=DATASET_PATH + '/train', transform=self.train_transform)
+        self.imagenet_val = torchvision.datasets.ImageFolder(root=DATASET_PATH + '/val', transform=self.test_transform)
 
     def train_dataloader(self):
-        return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.imagenet_train, batch_size=self.batch_size, shuffle=True)
 
     def val_dataloader(self):
-        # 使用测试集作为验证集
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        # Use the validation dataset
+        return DataLoader(self.imagenet_val, batch_size=self.batch_size)
 
     def test_dataloader(self):
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        return DataLoader(self.imagenet_val, batch_size=self.batch_size)
 
 
 class ResNet50Classifier(pl.LightningModule):
-    def __init__(self, num_classes=100):
+    def __init__(self, num_classes=1000):
         super().__init__()
         self.model = resnet50(pretrained=True)
-        self.model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
-        # self.model.maxpool = nn.Identity()
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
         self.acc = Accuracy(num_classes=num_classes, task="multiclass", top_k=1)
 
@@ -89,11 +85,9 @@ class ResNet50Classifier(pl.LightningModule):
 
 
 def main():
-    data_module = CIFAR100DataModule(batch_size=64)
+    data_module = ImageNetDataModule(batch_size=64)
     model = ResNet50Classifier()
-    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed', precision=16)
-    # trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='deepspeed')
-    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='auto')
+    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
