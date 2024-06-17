@@ -40,14 +40,14 @@ class CIFAR100DataModule(pl.LightningDataModule):
                                                            transform=self.test_transform)
 
     def train_dataloader(self):
-        return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True, pin_memory=True)
 
     def val_dataloader(self):
         # 使用测试集作为验证集
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        return DataLoader(self.cifar100_test, batch_size=self.batch_size, pin_memory=True)
 
     def test_dataloader(self):
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        return DataLoader(self.cifar100_test, batch_size=self.batch_size, pin_memory=True)
 
 
 class ResNet50Classifier(pl.LightningModule):
