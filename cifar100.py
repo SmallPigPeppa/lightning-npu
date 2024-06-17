@@ -16,7 +16,7 @@ class CIFAR100DataModule(pl.LightningDataModule):
     def __init__(self, batch_size=32):
         super().__init__()
         self.batch_size = batch_size
-        # 训练时使用的数据增强
+        # Training data transformations
         self.train_transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
@@ -24,7 +24,7 @@ class CIFAR100DataModule(pl.LightningDataModule):
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
         ])
-        # 测试时使用的数据增强（一般较少）
+        # Test data transformations (less augmentation)
         self.test_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5071, 0.4867, 0.4408), std=(0.2675, 0.2565, 0.2761))
