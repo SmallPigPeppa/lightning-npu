@@ -8,8 +8,13 @@ from torchvision.models import resnet50
 from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
+from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
 DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
+max_epochs = 80
+lr = 0.1
+wd = 5e-4
+batch_size = 256
 
 
 class CIFAR100DataModule(pl.LightningDataModule):
@@ -31,21 +36,19 @@ class CIFAR100DataModule(pl.LightningDataModule):
         ])
 
     def setup(self, stage=None):
-        # 下载并应用适当的转换
         self.cifar100_train = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=True, download=True,
                                                             transform=self.train_transform)
         self.cifar100_test = torchvision.datasets.CIFAR100(root=DATASET_PATH, train=False, download=True,
                                                            transform=self.test_transform)
 
     def train_dataloader(self):
-        return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.cifar100_train, batch_size=self.batch_size, shuffle=True, pin_memory=True, num_workers=8)
 
     def val_dataloader(self):
-        # 使用测试集作为验证集
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        return DataLoader(self.cifar100_test, batch_size=self.batch_size, pin_memory=True, num_workers=8)
 
     def test_dataloader(self):
-        return DataLoader(self.cifar100_test, batch_size=self.batch_size)
+        return DataLoader(self.cifar100_test, batch_size=self.batch_size, pin_memory=True, num_workers=8)
 
 
 class ResNet50Classifier(pl.LightningModule):
@@ -84,18 +87,28 @@ class ResNet50Classifier(pl.LightningModule):
         self.log('test_acc', acc)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-3)
-        return optimizer
+        params_to_optimize = self.model.parameters()
+
+        optimizer = torch.optim.SGD(
+            params_to_optimize,
+            lr=lr,
+            weight_decay=wd,
+            momentum=0.9)
+
+        scheduler = LinearWarmupCosineAnnealingLR(
+            optimizer,
+            warmup_epochs=5,
+            max_epochs=max_epochs,
+            warmup_start_lr=0.01 * lr,
+            eta_min=0.01 * lr,
+        )
+        return [optimizer], [scheduler]
 
 
 def main():
-    data_module = CIFAR100DataModule(batch_size=64)
+    data_module = CIFAR100DataModule(batch_size=batch_size)
     model = ResNet50Classifier()
-    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed', precision=16)
-    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed')
-    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
-    # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
-    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed',)
+    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=max_epochs, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
