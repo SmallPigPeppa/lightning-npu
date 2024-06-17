@@ -92,7 +92,8 @@ def main():
     data_module = CIFAR100DataModule(batch_size=64)
     model = ResNet50Classifier()
     # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed', precision=16)
-    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='deepspeed')
+    # trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, precision=16, strategy='deepspeed')
+    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=5, strategy='deepspeed')
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
