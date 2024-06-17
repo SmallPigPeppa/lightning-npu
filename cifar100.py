@@ -8,8 +8,6 @@ from torchvision.models import resnet50
 from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
-import torch_npu
-import transfer_to_npu
 
 DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
 
