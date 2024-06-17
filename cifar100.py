@@ -62,7 +62,7 @@ class ResNet50Classifier(pl.LightningModule):
         x, y = batch
         logits = self(x)
         loss = F.cross_entropy(logits, y)
-        self.log('train_loss', loss)
+        self.log('train_loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -70,8 +70,8 @@ class ResNet50Classifier(pl.LightningModule):
         logits = self(x)
         loss = F.cross_entropy(logits, y)
         acc = self.acc(logits, y)
-        self.log('val_loss', loss)
-        self.log('val_acc', acc)
+        self.log('val_loss', loss, prog_bar=True)
+        self.log('val_acc', acc, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
