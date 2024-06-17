@@ -95,7 +95,7 @@ def main():
     # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, strategy='deepspeed')
     # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
     # trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
-    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5)
+    trainer = Trainer(accelerator='npu', devices='0,1', max_epochs=5, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
