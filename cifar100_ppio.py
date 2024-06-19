@@ -109,7 +109,8 @@ def main():
     data_module = CIFAR100DataModule(batch_size=batch_size)
     model = ResNet50Classifier()
     # semi-precision
-    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=max_epochs, precision=16)
+    # trainer = Trainer(accelerator='gpu', devices=1, max_epochs=max_epochs, precision=16)
+    trainer = Trainer(accelerator='gpu', devices=1, max_epochs=max_epochs)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
