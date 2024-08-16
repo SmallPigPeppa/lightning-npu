@@ -9,7 +9,7 @@ from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
 
-DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
+DATASET_PATH = '/home/ma-user/work/dataset/all/torch_ds'
 
 
 class CIFAR100DataModule(pl.LightningDataModule):
