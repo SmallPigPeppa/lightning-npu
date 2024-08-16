@@ -91,8 +91,8 @@ class ResNet50Classifier(pl.LightningModule):
 
 def main():
     data_module = CIFAR100DataModule(batch_size=256)
-    wandb_logger = WandbLogger(name='cifar100-r50', project='lightning-npu', entity='pigpeppa', offline=False)
     model = ResNet50Classifier()
+    wandb_logger = WandbLogger(name='cifar100-r50', project='lightning-npu', entity='pigpeppa', offline=False)
     trainer = Trainer(accelerator='npu',logger=wandb_logger, max_epochs=5, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
