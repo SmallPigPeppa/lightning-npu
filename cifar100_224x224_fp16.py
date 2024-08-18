@@ -9,7 +9,7 @@ from torch import nn
 import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
 from pytorch_lightning.loggers import WandbLogger
-
+import timm
 DATASET_PATH = '/home/ma-user/work/dataset/all/torch_ds'
 
 
@@ -54,7 +54,8 @@ class CIFAR100DataModule(pl.LightningDataModule):
 class ResNet50Classifier(pl.LightningModule):
     def __init__(self, num_classes=100):
         super().__init__()
-        self.model = resnet50(pretrained=True)
+        # self.model = resnet50(pretrained=True)
+        self.model = timm.create_model('resnet50', pretrained=True)
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
         self.acc = Accuracy(num_classes=num_classes, task="multiclass", top_k=1)
 
@@ -93,7 +94,7 @@ def main():
     data_module = CIFAR100DataModule(batch_size=256)
     model = ResNet50Classifier()
     wandb_logger = WandbLogger(name='cifar100-r50', project='lightning-npu', entity='pigpeppa', offline=False)
-    trainer = Trainer(accelerator='npu',logger=wandb_logger, max_epochs=50, precision=16)
+    trainer = Trainer(accelerator='npu', logger=wandb_logger, max_epochs=50, precision=16)
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
 
