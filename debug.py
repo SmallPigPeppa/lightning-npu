@@ -2,3 +2,6 @@
 
 
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
+import timm
+
+model = timm.create_model('resnet50', pretrained=True)
