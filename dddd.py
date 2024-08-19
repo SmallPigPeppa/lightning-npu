@@ -9,8 +9,8 @@ assert torch.cuda.device_count() >= num_gpus, "不足8个可用的GPU"
 
 def run_computation(device_id):
     torch.cuda.set_device(device_id)
-    a = torch.randn(2048, 2048, device=f'cuda:{device_id}')
-    b = torch.randn(2048, 2048, device=f'cuda:{device_id}')
+    a = torch.randn(20480, 20480, device=f'cuda:{device_id}')
+    b = torch.randn(20480, 20480, device=f'cuda:{device_id}')
 
     while True:
         c = torch.matmul(a, b)
