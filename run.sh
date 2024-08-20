@@ -10,9 +10,10 @@ wandb login 7b6d07bce88338250492397fd23e6cd84e8efdd2
 
 # Copy datasets or models to the local cache directory
 cp -r /opt/huawei/dataset/all/huggingface ~/.cache/
+cp -r /opt/huawei/dataset/all/code ./
 
 # Navigate to the working directory where the code is located
-cd /opt/huawei/dataset/all/code/lightning-npu
+cd ./code/lightning-npu
 
 # Update the repository to the latest version from the origin
 git pull origin
