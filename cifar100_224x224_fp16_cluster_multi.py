@@ -97,11 +97,11 @@ def main():
     model = ResNet50Classifier()
     wandb_logger = WandbLogger(name='cifar100-r50', project='lightning-npu', entity='pigpeppa', offline=True)
     trainer = Trainer(
-        accelerator='npu',
         logger=wandb_logger,
         max_epochs=50,
         precision=16,
         num_nodes=2,
+        accelerator='npu',
         strategy="ddp"
     )
     trainer.fit(model, datamodule=data_module)
