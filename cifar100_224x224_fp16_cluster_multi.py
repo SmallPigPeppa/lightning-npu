@@ -102,6 +102,7 @@ def main():
         precision=16,
         accelerator='npu',
         num_nodes=2,
+        strategy="ddp"
     )
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
