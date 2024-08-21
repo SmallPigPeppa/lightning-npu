@@ -100,7 +100,8 @@ def main():
         logger=wandb_logger,
         max_epochs=50,
         precision=16,
-        accelerator='npu'
+        accelerator='npu',
+        num_nodes=2,
     )
     trainer.fit(model, datamodule=data_module)
     trainer.test(model, datamodule=data_module)
