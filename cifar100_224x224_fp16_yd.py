@@ -10,7 +10,10 @@ import torch.nn.functional as F
 from torchmetrics.classification.accuracy import Accuracy
 from pytorch_lightning.loggers import WandbLogger
 import timm
+import os
+os.environ['CURL_CA_BUNDLE'] = ''
 DATASET_PATH = '/home/ma-user/work/wenzhuoliu/torch_ds'
+
 
 
 class CIFAR100DataModule(pl.LightningDataModule):
