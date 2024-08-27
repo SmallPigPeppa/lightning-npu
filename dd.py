@@ -5,8 +5,8 @@ num_gpus = 8
 
 
 def run_computation(device_id):
-    a = torch.randn(2500, 1024, 1024, device=f'npu:{device_id}')
-    b = torch.randn(2500, 1024, 1024, device=f'npu:{device_id}')
+    a = torch.ones(size=[2500, 1024, 1024], device=f'npu:{device_id}')
+    b = torch.ones(size=[2500, 1024, 1024], device=f'npu:{device_id}')
     c = a * b
 
 
