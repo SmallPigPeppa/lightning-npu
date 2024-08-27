@@ -11,5 +11,4 @@ def run_computation(device_id):
 
 while True:
     for i in range(num_gpus):
-        print(f"Running on device {i}")
         run_computation(i)
