@@ -1,8 +1,8 @@
 import torch
 import time
 import torch_npu
-# import transfer_to_npu
-from torch_npu.contrib import transfer_to_npu
+import transfer_to_npu
+# from torch_npu.contrib import transfer_to_npu
 
 num_gpus = 8
 assert torch.cuda.device_count() >= num_gpus, "不足8个可用的GPU"
