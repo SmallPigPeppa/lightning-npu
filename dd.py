@@ -1,6 +1,7 @@
+import os
 import torch
 import torch_npu
-
+os.system('export ASCEND_LAUNCH_BLOCKING=1')
 num_gpus = 8
 
 
